@@ -38,6 +38,7 @@ jobs:
             echo "files_exists=true" >> $GITHUB_OUTPUT
             echo "### New update email :inbox_tray:" >> $GITHUB_STEP_SUMMARY
           else
+            echo hello >> dist/email.html
             echo "### No updates since last run :zzz:" >> $GITHUB_STEP_SUMMARY
           fi
 
