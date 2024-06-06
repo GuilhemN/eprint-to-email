@@ -11,21 +11,20 @@ async function createEmail() {
   })
 
   const actionUrl = getFromArgv('actionUrl')
-  const lastSuccess = getFromArgv('lastSuccess')
 
   try {
     const { renderEmail } = await vite.ssrLoadModule('/src/renderEmail.tsx')
 
-    var fileContents, prevLastUpdate;
+    var fileContents, lastSuccess;
     try {
-      prevLastUpdate = fs.readFileSync('lastUpdate');
+      lastSuccess = readFileSync('dist/lastupdate', { encoding: 'utf8', flag: 'r' });
     } catch (err) {
       // Here you get the error when the file was not found,
       // but you also get any other error
-      prevLastUpdate = null;
+      lastSuccess = null;
     }
 
-    const { html, itemCount, lastUpdate } = await renderEmail({ actionUrl, prevLastUpdate })
+    const { html, itemCount, updatedOn } = await renderEmail({ actionUrl, lastSuccess })
 
     if (itemCount === 0) {
       console.log('No new items in feed, skipping email')
@@ -36,7 +35,7 @@ async function createEmail() {
       mkdirSync(outputDir)
     }
 
-    writeFileSync(`${outputDir}/lastupdate`, lastUpdate, { flag: 'w' })
+    writeFileSync(`${outputDir}/lastupdate`, updatedOn, { flag: 'w' })
     writeFileSync(`${outputDir}/email.html`, html, { flag: 'w' })
 
     process.exit(0)
