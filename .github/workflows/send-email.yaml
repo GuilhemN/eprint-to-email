@@ -44,8 +44,9 @@ jobs:
       - name: Check email exists
         id: check_email
         run: |
-          echo "Last update on "
+          echo "Last update on " >> $GITHUB_STEP_SUMMARY
           cat dist/lastupdate >> $GITHUB_STEP_SUMMARY
+          echo "\n" >> $GITHUB_STEP_SUMMARY
           if [ -f dist/email.html ]; then
             echo "files_exists=true" >> $GITHUB_OUTPUT
             echo "### New update email :inbox_tray:" >> $GITHUB_STEP_SUMMARY
