@@ -20,25 +20,32 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Last successful run
-        id: last_success
-        run: |
-          echo "LAST_SUCCESS=$(gh api -XGET repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/send-email.yaml/runs --jq '.workflow_runs[0].run_started_at' -F status=success -F per_page=1)" >> $GITHUB_OUTPUT
-          echo "LAST_SUCCESS=$(gh api -XGET repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/send-email.yaml/runs --jq '.workflow_runs[0].run_started_at' -F status=success -F per_page=1)" >> $GITHUB_STEP_SUMMARY
+      - name: Cache Last Update
+        uses: actions/cache@v4
+        with:
+          path: dist/lastupdate
+          key: ${{ runner.os }}-lastupdate
 
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Last successful run
+      #   id: last_success
+      #   run: |
+      #     echo "LAST_SUCCESS=$(gh api -XGET repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/send-email.yaml/runs --jq '.workflow_runs[0].run_started_at' -F status=success -F per_page=1)" >> $GITHUB_OUTPUT
+      #     echo "LAST_SUCCESS=$(gh api -XGET repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/send-email.yaml/runs --jq '.workflow_runs[0].run_started_at' -F status=success -F per_page=1)" >> $GITHUB_STEP_SUMMARY
+
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - run: npm ci
 
       - name: Create email
         run: |
           npm run email actionUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} lastSuccess=${{ steps.last_success.outputs.LAST_SUCCESS }}
-          echo ${{ steps.last_success.outputs.LAST_SUCCESS }} >> $GITHUB_STEP_SUMMARY
 
       - name: Check email exists
         id: check_email
         run: |
+          echo "Last update on "
+          cat dist/lastupdate >> $GITHUB_STEP_SUMMARY
           if [ -f dist/email.html ]; then
             echo "files_exists=true" >> $GITHUB_OUTPUT
             echo "### New update email :inbox_tray:" >> $GITHUB_STEP_SUMMARY

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs'
 import { createServer as createViteServer } from 'vite'
 
 const outputDir = './dist'
@@ -16,7 +16,16 @@ async function createEmail() {
   try {
     const { renderEmail } = await vite.ssrLoadModule('/src/renderEmail.tsx')
 
-    const { html, itemCount } = await renderEmail({ actionUrl, lastSuccess })
+    var fileContents, prevLastUpdate;
+    try {
+      prevLastUpdate = fs.readFileSync('lastUpdate');
+    } catch (err) {
+      // Here you get the error when the file was not found,
+      // but you also get any other error
+      prevLastUpdate = null;
+    }
+
+    const { html, itemCount, lastUpdate } = await renderEmail({ actionUrl, prevLastUpdate })
 
     if (itemCount === 0) {
       console.log('No new items in feed, skipping email')
@@ -27,6 +36,7 @@ async function createEmail() {
       mkdirSync(outputDir)
     }
 
+    writeFileSync(`${outputDir}/lastupdate`, lastUpdate, { flag: 'w' })
     writeFileSync(`${outputDir}/email.html`, html, { flag: 'w' })
 
     process.exit(0)

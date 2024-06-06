@@ -20,6 +20,7 @@ export async function renderEmail({ actionUrl, cache, lastSuccess, pretty = fals
   const feeds = cache ?? (await parseFeeds())
 
   const filteredFeeds = filterItemsFromFeed(feeds, from, initialRun ? LIMIT_ITEMS_INITIAL_RUN : undefined)
+  const lastUpdate = feeds[0].value.lastBuildDate;
 
   const itemCount = getItemCount(filteredFeeds)
 
@@ -27,5 +28,5 @@ export async function renderEmail({ actionUrl, cache, lastSuccess, pretty = fals
     pretty,
   })
 
-  return { html, itemCount, feeds }
+  return { html, itemCount, lastUpdate, feeds }
 }
