@@ -30,9 +30,10 @@ jobs:
 
       - name: Echo last update
         run: |
-          echo "Last update was on " >> $GITHUB_STEP_SUMMARY
-          touch dist/lastupdate
-          cat dist/lastupdate >> $GITHUB_STEP_SUMMARY
+          if [ -f dist/lastupdate ]; then
+            echo "Last update was on " >> $GITHUB_STEP_SUMMARY
+            cat dist/lastupdate >> $GITHUB_STEP_SUMMARY
+          fi
 
       - run: npm ci
 
