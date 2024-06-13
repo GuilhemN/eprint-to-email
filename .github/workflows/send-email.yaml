@@ -52,11 +52,11 @@ jobs:
           fi
 
 
-    - name: Always Save Last Update 
-      uses: actions/cache/save@v4
-      with:
-        path: dist/lastupdate
-        key: ${{ runner.os }}-lastupdate
+      - name: Always Save Last Update 
+        uses: actions/cache/save@v4
+        with:
+          path: dist/lastupdate
+          key: ${{ runner.os }}-lastupdate
 
       - name: Send email
         if: steps.check_email.outputs.files_exists == 'true'
