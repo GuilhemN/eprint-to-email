@@ -31,6 +31,7 @@ jobs:
       - name: Echo last update
         run: |
           echo "Last update was on " >> $GITHUB_STEP_SUMMARY
+          touch dist/lastupdate
           cat dist/lastupdate >> $GITHUB_STEP_SUMMARY
 
       - run: npm ci
@@ -43,7 +44,6 @@ jobs:
         id: check_email
         run: |
           echo "Current update until " >> $GITHUB_STEP_SUMMARY
-          touch dist/lastupdate
           cat dist/lastupdate >> $GITHUB_STEP_SUMMARY
           echo "\n" >> $GITHUB_STEP_SUMMARY
           if [ -f dist/email.html ]; then
