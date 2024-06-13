@@ -20,12 +20,13 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-
       - name: Restore cache last update
         uses: actions/cache/restore@v4
         with:
           path: dist/lastupdate
-          key: ${{ runner.os }}-lastupdate
+          key: lastupdate-${{ github.event.repository.updated_at}}
+          restore-keys: |
+            lastupdate-
 
       - name: Echo last update
         run: |
@@ -56,7 +57,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: dist/lastupdate
-          key: ${{ runner.os }}-lastupdate
+          key: lastupdate-${{ github.event.repository.updated_at}}
 
       - name: Send email
         if: steps.check_email.outputs.files_exists == 'true'
