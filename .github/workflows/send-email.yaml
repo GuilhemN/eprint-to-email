@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: dist/lastupdate
-          key: lastupdate-${{ github.event.repository.updated_at}}
+          key: lastupdate-${{ github.run_id }}
 
       - name: Send email
         if: steps.check_email.outputs.files_exists == 'true'
