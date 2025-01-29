@@ -39,7 +39,9 @@ jobs:
 
       - name: Create email
         run: |
-          npm run email actionUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} lastSuccess=${{ steps.last_success.outputs.LAST_SUCCESS }}
+          npm run email actionUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} lastSuccess=
+        # run: |
+        #   npm run email actionUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} lastSuccess=${{ steps.last_success.outputs.LAST_SUCCESS }}
 
       - name: Check email exists
         id: check_email
