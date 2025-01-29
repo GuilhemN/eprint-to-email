@@ -5,7 +5,7 @@ Stay on top of your favorite RSS feeds - on your own terms. This project allows 
 Say goodbye to constantly checking for updates, and hello to staying informed on your own schedule.
 
 [Introductory post on my blog](https://appjeniksaan.nl/linked/rss-to-email-on-github-actions)
-
+ 
 ## How does it work
 
 - Github workflow runs on a schedule
