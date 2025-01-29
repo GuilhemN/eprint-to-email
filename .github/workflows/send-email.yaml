@@ -39,9 +39,7 @@ jobs:
 
       - name: Create email
         run: |
-          npm run email actionUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} lastSuccess="Wed, 15 Jan 2025 06:27:50 +0000"
-        # run: |
-        #   npm run email actionUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} lastSuccess=${{ steps.last_success.outputs.LAST_SUCCESS }}
+          npm run email actionUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} lastSuccess=${{ steps.last_success.outputs.LAST_SUCCESS }}
 
       - name: Check email exists
         id: check_email
@@ -61,7 +59,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: dist/lastupdate
-          key: lastupdate-${{ github.run_id }}
+          key: lastupdate-${{ github.event.repository.updated_at}}
 
       - name: Send email
         if: steps.check_email.outputs.files_exists == 'true'
@@ -79,12 +77,3 @@ jobs:
           from: ${{ vars.FROM }}
 
           html_body: file://dist/email.html
-
-  keepalive-job:
-    name: Keepalive Workflow
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: gautamkrishnar/keepalive-workflow@v2
