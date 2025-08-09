@@ -1,13 +1,13 @@
-name: Keep alive github action
+name: keepalive
+
 on:
   schedule:
-    - cron: "0 0 * * *"
+    # Run every sunday at 1:27 UTC
+    - cron: '27 1 * * SUN'
+
 jobs:
-  keepalive-job:
-    name: Keepalive Workflow
+  keepalive:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: entepotenz/keep-github-actions-alive-min-dependencies@v1
+      - name: keepalive
+        uses: efrecon/gh-action-keepalive@main
