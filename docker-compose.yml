@@ -13,6 +13,7 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - MAIL_TO=${MAIL_TO}
       - FROM=${FROM}
+      - SCHEDULE=${SCHEDULE}
     volumes:
       - rss_data:/app/data
     networks:
