@@ -3,31 +3,24 @@ import { createServer as createViteServer } from 'vite'
 
 const outputDir = './dist'
 
-const getFromArgv = (key) => process.argv.find((arg) => arg.startsWith(`${key}=`))?.replaceAll(`${key}=`, '')
-
 async function createEmail() {
   const vite = await createViteServer({
     appType: 'custom',
   })
 
-  const actionUrl = getFromArgv('actionUrl')
-
   try {
     const { renderEmail } = await vite.ssrLoadModule('/src/renderEmail.tsx')
+    const { getDatabase } = await vite.ssrLoadModule('/src/database.ts')
 
-    var fileContents, lastSuccess;
-    try {
-      lastSuccess = readFileSync('dist/lastupdate', { encoding: 'utf8', flag: 'r' });
-    } catch (err) {
-      // Here you get the error when the file was not found,
-      // but you also get any other error
-      lastSuccess = null;
-    }
-
-    const { html, itemCount, updatedOn } = await renderEmail({ actionUrl, lastSuccess })
+    const { html, itemCount, updatedOn } = await renderEmail({})
 
     if (itemCount === 0) {
       console.log('No new items in feed, skipping email')
+
+      // Still record the run in the database even if no items
+      const db = getDatabase()
+      await db.recordLastRun(updatedOn, 0)
+
       process.exit(0)
     }
 
@@ -35,13 +28,19 @@ async function createEmail() {
       mkdirSync(outputDir)
     }
 
-    writeFileSync(`${outputDir}/lastupdate`, updatedOn, { flag: 'w' })
     writeFileSync(`${outputDir}/email.html`, html, { flag: 'w' })
 
+    // Record this successful run in the database
+    const db = getDatabase()
+    await db.recordLastRun(updatedOn, itemCount)
+
+    console.log(`Email created successfully with ${itemCount} new items`)
     process.exit(0)
   } catch (e) {
-    console.error(e)
+    console.error('Error creating email:', e)
     process.exit(1)
+  } finally {
+    await vite.close()
   }
 }
 

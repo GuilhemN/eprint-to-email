@@ -1,32 +1,58 @@
 import { render } from '@react-email/render'
 import Email from './email/Email'
 import { filterItemsFromFeed } from './filterItems'
-import { parseLastSuccess } from './parseLastSuccess'
 import { parseFeeds, SettledFeed } from './parseFeeds'
 import { getItemCount } from './getItemCount'
+import { getDatabase } from './database'
+import dayjs from 'dayjs'
 
 interface Props {
-  actionUrl: string
-  cache: SettledFeed[]
-  lastSuccess: string
+  cache: { feeds: SettledFeed[]; feedUrls: string[] }
   pretty: boolean
 }
 
-const LIMIT_ITEMS_INITIAL_RUN = 3
+export async function renderEmail({ cache, pretty = false }: Partial<Props>) {
+  const db = getDatabase()
 
-export async function renderEmail({ actionUrl, cache, lastSuccess, pretty = false }: Partial<Props>) {
-  const { from, initialRun } = parseLastSuccess(lastSuccess)
+  // Check if this is the first run by looking at database stats
+  const stats = await db.getStats()
+  const initialRun = stats.totalRuns === 0
 
-  const feeds = cache ?? (await parseFeeds())
+  const { feeds, feedUrls } = cache ?? (await parseFeeds())
 
-  const filteredFeeds = filterItemsFromFeed(feeds, from, initialRun ? LIMIT_ITEMS_INITIAL_RUN : undefined)
-  const updatedOn = feeds[0].value.lastBuildDate;
+  const filteredFeeds = await filterItemsFromFeed(feeds, feedUrls, undefined)
+  const updatedOn = dayjs().toISOString() // Use current time as the update timestamp
 
   const itemCount = getItemCount(filteredFeeds)
 
-  const html = render(<Email actionUrl={actionUrl} feeds={filteredFeeds} from={from} initialRun={initialRun} itemCount={itemCount} />, {
+  // Mark new items as seen in the database
+  const newItems: Array<{ id: string; feedUrl: string; title: string; link: string; pubDate: string }> = []
+
+  filteredFeeds.forEach((feed, index) => {
+    if (feed.status === 'fulfilled') {
+      const feedUrl = feedUrls[index] || ''
+      feed.value.items.forEach((item) => {
+        const itemId = item.id || item.guid || ''
+        if (itemId) {
+          newItems.push({
+            id: itemId,
+            feedUrl,
+            title: item.title || '',
+            link: item.link || '',
+            pubDate: item.pubDate || dayjs().toISOString(),
+          })
+        }
+      })
+    }
+  })
+
+  if (newItems.length > 0) {
+    await db.markItemsAsSeen(newItems)
+  }
+
+  const html = render(<Email feeds={filteredFeeds} initialRun={initialRun} itemCount={itemCount} />, {
     pretty,
   })
 
-  return { html, itemCount, updatedOn, feeds }
+  return { html, itemCount, updatedOn, feeds: filteredFeeds }
 }

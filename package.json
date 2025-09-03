@@ -4,9 +4,16 @@
   "scripts": {
     "clean": "rimraf dist cache.json",
     "dev": "npm run clean && node server",
-    "email": "node email",
+    "email": "npm run build:js && node email",
     "build": "prettier --check . && tsc",
-    "format": "prettier --write ."
+    "build:js": "tsc --outDir dist --noEmit false",
+    "format": "prettier --write .",
+    "start": "npm run build:js && node scheduler.js",
+    "docker:build": "docker build -t rss-to-email .",
+    "docker:run": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "manage": "npm run build:js && node manage.js"
   },
   "dependencies": {
     "@react-email/button": "0.0.15",
@@ -23,15 +30,22 @@
     "@react-email/section": "0.0.12",
     "@react-email/text": "0.0.8",
     "dayjs": "1.11.11",
+    "node-cron": "^3.0.3",
     "node-html-parser": "6.1.13",
+    "nodemailer": "^6.9.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.23.1",
-    "rss-parser": "3.13.0"
+    "rss-parser": "3.13.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
+    "@types/node-cron": "^3.0.0",
+    "@types/nodemailer": "^6.4.0",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
+    "@types/sqlite3": "^3.1.0",
     "@vitejs/plugin-react": "4.3.0",
     "express": "4.19.2",
     "prettier": "3.2.5",

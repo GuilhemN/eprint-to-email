@@ -38,20 +38,23 @@ const parser: Parser = new Parser<{}, CustomItem>({
 export const parseFeeds = async () => {
   const settledFeeds = await Promise.allSettled(feeds.map((feed) => parser.parseURL(feed)))
 
-  return settledFeeds.reduce((acc, current, i) => {
-    switch (current.status) {
-      case 'fulfilled':
-        return [...acc, { ...current, value: current.value as Output<CustomItem> }]
-      case 'rejected':
-        console.error(`Could not settle feed ${feeds[i]}, reason: ${current.reason}`)
+  return {
+    feeds: settledFeeds.reduce((acc, current, i) => {
+      switch (current.status) {
+        case 'fulfilled':
+          return [...acc, { ...current, value: current.value as Output<CustomItem> }]
+        case 'rejected':
+          console.error(`Could not settle feed ${feeds[i]}, reason: ${current.reason}`)
 
-        return [
-          ...acc,
-          {
-            ...current,
-            feed: feeds[i],
-          },
-        ]
-    }
-  }, [] as SettledFeed[])
+          return [
+            ...acc,
+            {
+              ...current,
+              feed: feeds[i],
+            },
+          ]
+      }
+    }, [] as SettledFeed[]),
+    feedUrls: feeds,
+  }
 }

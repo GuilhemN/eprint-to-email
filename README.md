@@ -1,37 +1,48 @@
 # RSS to Email
 
-Stay on top of your favorite RSS feeds - on your own terms. This project allows you to set up custom email updates based on the RSS feeds you specify, all within the comfort of your own Github account.
+Stay on top of your favorite RSS feeds with automated email notifications. This self-hosted solution uses Docker Compose to track RSS feeds and send you emails when new items are published.
 
 Say goodbye to constantly checking for updates, and hello to staying informed on your own schedule.
 
-[Introductory post on my blog](https://appjeniksaan.nl/linked/rss-to-email-on-github-actions)
- 
+## Features
+
+- 📧 Automated email notifications for new RSS items
+- 🗄️ SQLite database prevents duplicate notifications
+- 🐳 Easy deployment with Docker Compose
+- ⏰ Configurable scheduling with cron expressions
+- 🔧 Built-in management tools
+- 📊 Preview interface for development
+
+## Quick Start
+
+```bash
+# Clone the repository
+git clone <your-repo>
+cd rss-to-email
+
+# Run the setup script
+./setup.sh
+```
+
+👉 **[See complete setup guide](README-DOCKER.md)** for detailed instructions.
+
 ## How does it work
 
-- Github workflow runs on a schedule
-- Workflow retrieves updates from your RSS feeds since its last successful run
-- Workflow sends the updates through a SMTP server of your choice
+- Container runs with configurable cron schedule
+- SQLite database tracks previously seen RSS items
+- Email notifications sent via SMTP when new items are detected
+- Persistent storage prevents duplicate notifications
 
 ## Getting started
 
-1. [Fork](../../fork) this repository
-2. Update [feeds.ts](src/feeds.ts) with your favorite RSS feed(s)
-3. Update the [cron schedule](.github/workflows/send-email.yaml#L5) in the workflow file
-4. Add the following [repository variables](../../settings/variables/actions) in settings:
-   - `SMTP_SERVER` for example: smtp.gmail.com
-   - `SMTP_PORT` for example: 587
-5. Add the following [repository secrets](../../settings/secrets/actions) in settings:
-   - `MAIL_TO` the mail address to send the email to
-   - `SMTP_USERNAME`
-   - `SMTP_PASSWORD`
-6. Done :muscle:
+1. Update [feeds.ts](src/feeds.ts) with your favorite RSS feed(s)
+2. Configure your environment variables in `.env`
+3. Run `./setup.sh` or `npm run docker:run`
+4. Done :muscle:
 
-| :warning: | The above variables and secrets can also be changed directly in the [workflow](.github/workflows/send-email.yaml), but be aware that if your repo is public that this could expose your credentials. |
-| :-------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+## Pros and cons
 
-## Pro and cons
-
-:fire: your data stays in your own Github account
+:fire: your data stays in your own infrastructure
 
 :snowflake: fully customizable email
 
@@ -52,9 +63,7 @@ Some example schedules:
 | 0 10 \* \* 6     | saturday at 10:00                               |
 | 0/15 \* \* \* \* | every 15 minutes                                |
 
-Because the workflow looks at the previous successful run to determine which posts to send you, you can also disable the workflow by hand and pickup again later. There might be a limit to the amount of posts in a single RSS feed.
-
-Note: Github workflow runs do [not support timezones](https://github.com/orgs/community/discussions/13454) for cron schedules.
+The application tracks previously seen RSS items in a SQLite database, so you can stop and restart the container without losing track of what's been sent. There might be a limit to the amount of posts in a single RSS feed.
 
 ## Screenshot
 

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  rss-email:
+    build: .
+    container_name: rss-to-email
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/data/rss.db
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - MAIL_TO=${MAIL_TO}
+      - FROM=${FROM}
+    volumes:
+      - rss_data:/app/data
+    networks:
+      - rss-network
+    restart: unless-stopped
+    # Override the default command to run the scheduler
+    command: ['node', 'scheduler.js']
+
+  # Optional: Add a simple web interface for previewing emails
+  rss-preview:
+    build: .
+    container_name: rss-preview
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - DB_PATH=/app/data/rss.db
+    volumes:
+      - rss_data:/app/data
+    networks:
+      - rss-network
+    restart: unless-stopped
+    command: ['npm', 'run', 'dev']
+
+volumes:
+  rss_data:
+
+networks:
+  rss-network:
+    driver: bridge

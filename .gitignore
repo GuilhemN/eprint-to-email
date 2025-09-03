@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 cache.json
+data/
+.env

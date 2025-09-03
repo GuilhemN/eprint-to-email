@@ -1,11 +1,9 @@
 import { Container } from '@react-email/container'
 import { Head } from '@react-email/head'
 import { Html } from '@react-email/html'
-import { Link } from '@react-email/link'
 import { Preview } from '@react-email/preview'
 import { Section } from '@react-email/section'
 import { Text } from '@react-email/text'
-import { Dayjs } from 'dayjs'
 import FeedSwitch from './FeedSwitch'
 import { formatDate } from '../utils/formatter'
 import { SettledFeed } from '../parseFeeds'
@@ -15,13 +13,11 @@ import { parseIntro } from './parseIntro'
 interface Props {
   feeds: SettledFeed[]
   itemCount: number
-  actionUrl: string | undefined
-  from: Dayjs
   initialRun: boolean
 }
 
-export default function Email({ feeds, itemCount, actionUrl, from, initialRun }: Props) {
-  const intro = parseIntro(initialRun, itemCount, from)
+export default function Email({ feeds, itemCount, initialRun }: Props) {
+  const intro = parseIntro(initialRun, itemCount)
 
   return (
     <Html>
@@ -40,11 +36,7 @@ export default function Email({ feeds, itemCount, actionUrl, from, initialRun }:
             }
           })}
 
-          <Text style={section}>
-            <Link style={link} href={actionUrl}>
-              {formatDate(new Date().toISOString())}
-            </Link>
-          </Text>
+          <Text style={section}>{formatDate(new Date().toISOString())}</Text>
         </Container>
       </Section>
     </Html>
@@ -69,12 +61,4 @@ const section = {
   margin: '0',
   padding: '16px 48px',
   backgroundColor: '#e9ecef',
-}
-
-const link = {
-  color: '#495057',
-  textDecoration: 'underline',
-  textDecorationColor: '#1098ad',
-  textDecorationStyle: 'solid' as const,
-  textUnderlineOffset: '1px',
 }
