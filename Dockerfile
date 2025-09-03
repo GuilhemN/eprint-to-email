@@ -20,9 +20,6 @@ RUN npm run build
 # Build JavaScript files for production
 RUN npm run build:js
 
-# Remove dev dependencies after build
-RUN npm prune --production
-
 # Create directory for database and other data
 RUN mkdir -p /app/data
 
