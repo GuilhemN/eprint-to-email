@@ -2,7 +2,7 @@
   "name": "rss-to-email-vite",
   "type": "module",
   "scripts": {
-    "clean": "rimraf dist cache.json",
+    "clean": "rm -rf dist cache.json || true",
     "dev": "npm run clean && node server",
     "email": "npm run build:js && node email",
     "build": "prettier --check . && tsc",
