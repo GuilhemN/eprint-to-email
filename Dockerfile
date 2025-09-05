@@ -2,13 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache python3 make g++
+# Install build dependencies and create user early
+RUN apk add --no-cache python3 make g++ && \
+    addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
 
 # Copy package files first for better layer caching
 COPY package*.json ./
 
 # Install all dependencies (including devDependencies for building)
+# Keep as root for faster installation
 RUN npm ci
 
 # Copy source code
@@ -20,18 +23,16 @@ RUN npm run build
 # Build JavaScript files for production
 RUN npm run build:js
 
-# Create directory for database and other data
-RUN mkdir -p /app/data
+# Create directory for database and set ownership only on writable directories
+RUN mkdir -p /app/data && \
+    chown nodejs:nodejs /app/data /app/dist && \
+    touch /app/cache.json && \
+    chown nodejs:nodejs /app/cache.json
 
 # Set environment variables
 ENV NODE_ENV=production
 
-# Create a non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
-# Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
+# Switch to non-root user
 USER nodejs
 
 # Expose port for the preview server (optional)
