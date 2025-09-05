@@ -61,6 +61,7 @@ services:
       - rss_data:/app/data
     networks:
       - rss-network
+      - nginx-proxy
     restart: unless-stopped
     command: ['node', 'webhook.js']
 
