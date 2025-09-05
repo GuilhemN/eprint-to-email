@@ -5,29 +5,30 @@ WORKDIR /app
 # Install build dependencies and create user early
 RUN apk add --no-cache python3 make g++ && \
     addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+    adduser -S nodejs -u 1001 && \
+    chown nodejs:nodejs /app
 
 # Copy package files first for better layer caching
-COPY package*.json ./
+COPY --chown=nodejs:nodejs package*.json ./
+
+# Switch to nodejs user for all operations
+USER nodejs
 
 # Install all dependencies (including devDependencies for building)
-# Keep as root for faster installation
 RUN npm ci
 
-# Copy source code
-COPY . .
+# Copy source code with correct ownership
+COPY --chown=nodejs:nodejs . .
 
-# Build the application
+# Create directories that the build process will write to
+RUN mkdir -p /app/data /app/dist && \
+    touch /app/cache.json
+
+# Build the application (as nodejs user)
 RUN npm run build
 
 # Build JavaScript files for production
 RUN npm run build:js
-
-# Create directory for database and set ownership only on writable directories
-RUN mkdir -p /app/data && \
-    chown nodejs:nodejs /app/data /app/dist && \
-    touch /app/cache.json && \
-    chown nodejs:nodejs /app/cache.json
 
 # Set environment variables
 ENV NODE_ENV=production
