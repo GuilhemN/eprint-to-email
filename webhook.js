@@ -26,11 +26,11 @@ app.post('/trigger-email', async (req, res) => {
   try {
     // Check for secret key in query params or body
     const secret = req.query.key || req.body.key
-    
+
     if (!secret || secret !== WEBHOOK_SECRET) {
       return res.status(401).json({
         error: 'Unauthorized',
-        message: 'Invalid or missing secret key'
+        message: 'Invalid or missing secret key',
       })
     }
 
@@ -58,7 +58,7 @@ app.post('/trigger-email', async (req, res) => {
 
       if (shouldSend) {
         console.log('Sending email...')
-        
+
         try {
           // Get email configuration from environment
           const emailConfig = getEmailConfigFromEnv()
@@ -71,44 +71,44 @@ app.post('/trigger-email', async (req, res) => {
           res.json({
             success: true,
             message: 'Email generated and sent successfully',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           })
         } catch (emailError) {
           console.error('Failed to send email:', emailError.message)
-          
+
           // If email sending fails, still return success for generation
           res.json({
             success: true,
             message: `Email generated successfully but failed to send: ${emailError.message}`,
             warning: 'Email sending failed',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           })
         }
       } else {
         const reason = !hasEmailConfig ? 'email configuration missing' : 'send=false'
         console.log(`Email generated but not sent (${reason})`)
-        
+
         res.json({
           success: true,
           message: `Email generated successfully (not sent: ${reason})`,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         })
       }
     } else {
       console.log('No email file created (likely no new items)')
-      
+
       res.json({
         success: true,
         message: 'No new items found, email not generated',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       })
     }
   } catch (error) {
     console.error('Error in webhook:', error)
-    
+
     res.status(500).json({
       error: 'Internal server error',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
   }
 })

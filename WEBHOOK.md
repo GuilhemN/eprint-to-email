@@ -5,11 +5,13 @@ The webhook service provides HTTP endpoints to trigger email generation remotely
 ## Endpoints
 
 ### POST /trigger-email
+
 **Description**: Triggers email generation and optionally sends the email.
 
 **Authentication**: Requires a secret key passed as query parameter or in request body.
 
 **Parameters**:
+
 - `key` (required): Webhook secret key
 - `send` (optional): Whether to send the email after generation (default: `true` if email config is available, `false` otherwise)
 
@@ -31,6 +33,7 @@ curl -X POST "http://localhost:8080/trigger-email?key=your-secret-key" \
 **Response Examples**:
 
 Success (email sent):
+
 ```json
 {
   "success": true,
@@ -40,6 +43,7 @@ Success (email sent):
 ```
 
 Success (email generated but not sent):
+
 ```json
 {
   "success": true,
@@ -49,6 +53,7 @@ Success (email generated but not sent):
 ```
 
 Error (unauthorized):
+
 ```json
 {
   "error": "Unauthorized",
@@ -57,9 +62,11 @@ Error (unauthorized):
 ```
 
 ### GET /health
+
 **Description**: Health check endpoint.
 
 **Response**:
+
 ```json
 {
   "status": "ok",
