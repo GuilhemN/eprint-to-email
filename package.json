@@ -9,6 +9,7 @@
     "build:js": "tsc --outDir dist --noEmit false",
     "format": "prettier --write .",
     "start": "npm run build:js && node scheduler.js",
+    "webhook": "npm run build:js && node webhook.js",
     "docker:build": "docker build -t rss-to-email .",
     "docker:run": "docker-compose up -d",
     "docker:stop": "docker-compose down",

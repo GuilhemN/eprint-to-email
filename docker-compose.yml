@@ -38,9 +38,39 @@ services:
     restart: unless-stopped
     command: ['npm', 'run', 'dev']
 
+  # Webhook service for triggering email generation
+  rss-webhook:
+    build: .
+    container_name: rss-webhook
+    ports:
+      - '8080:8080'
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/data/rss.db
+      - WEBHOOK_PORT=8080
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-your-secret-key}
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - MAIL_TO=${MAIL_TO}
+      - FROM=${FROM}
+      - VIRTUAL_HOST=eprint.gniot.fr
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST=eprint.gniot.fr
+      - LETSENCRYPT_EMAIL=guilhem@gniot.fr
+    volumes:
+      - rss_data:/app/data
+    networks:
+      - rss-network
+    restart: unless-stopped
+    command: ['node', 'webhook.js']
+
 volumes:
   rss_data:
 
 networks:
   rss-network:
     driver: bridge
+  nginx-proxy:
+    external: true

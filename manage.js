@@ -17,6 +17,32 @@ async function main() {
         console.log(`- Last run: ${stats.lastRun || 'Never'}`)
         break
 
+      case 'webhook-test':
+        console.log('Testing webhook endpoint...')
+        const webhookUrl = process.argv[3] || 'http://localhost:8080/trigger-email'
+        const webhookSecret = process.argv[4] || process.env.WEBHOOK_SECRET || 'your-secret-key'
+        
+        try {
+          const response = await fetch(`${webhookUrl}?key=${webhookSecret}&send=false`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ send: false })
+          })
+          
+          const result = await response.json()
+          
+          if (response.ok) {
+            console.log('✅ Webhook test successful:', result.message)
+          } else {
+            console.log('❌ Webhook test failed:', result.error || result.message)
+          }
+        } catch (error) {
+          console.error('❌ Webhook test error:', error.message)
+        }
+        break
+
       case 'reset':
         // This would require additional methods in the database class
         console.log('Reset functionality would clear all data. Not implemented for safety.')
@@ -42,9 +68,10 @@ async function main() {
         console.log('RSS-to-Email Management Tool')
         console.log('')
         console.log('Available commands:')
-        console.log('  stats           - Show database statistics')
-        console.log('  test-email      - Run email generation immediately')
-        console.log('  reset           - Reset all data (manual operation)')
+        console.log('  stats                    - Show database statistics')
+        console.log('  test-email               - Run email generation immediately')
+        console.log('  webhook-test [url] [key] - Test webhook endpoint')
+        console.log('  reset                    - Reset all data (manual operation)')
         break
     }
   } finally {
