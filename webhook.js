@@ -3,7 +3,7 @@
 import express from 'express'
 import { exec } from 'child_process'
 import { promisify } from 'util'
-import { existsSync } from 'fs'
+import { existsSync, unlinkSync } from 'fs'
 import { getEmailConfigFromEnv, sendEmail } from './dist/emailSender.js'
 
 const execAsync = promisify(exec)
@@ -65,6 +65,13 @@ app.post('/trigger-email', async (req, res) => {
 
           // Send the email
           await sendEmail(emailConfig, emailPath)
+
+          // Clean up the email file after sending
+          try {
+            unlinkSync(emailPath)
+          } catch (e) {
+            // Ignore if file does not exist or cannot be deleted
+          }
 
           console.log('Email sent successfully!')
 
