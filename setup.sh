@@ -23,17 +23,17 @@ else
     echo "✅ .env file already exists"
 fi
 
-echo ""
-echo "🔧 Installing dependencies..."
-npm install
+#echo ""
+#echo "🔧 Installing dependencies..."
+#npm install
 
 echo ""
 echo "🐳 Building Docker containers..."
-docker-compose build
+docker compose build
 
 echo ""
 echo "🎯 Starting services..."
-docker-compose up -d
+docker compose up -d
 
 echo ""
 echo "✅ Setup complete!"
